@@ -1,0 +1,24 @@
+## CMake generated files
+CMakeCache.txt
+cmake_install.cmake
+
+## For Visual Studio Generated projects
+*.sln
+**/*.vcxproj
+**/*.vcxproj.filters
+*.VC.opendb
+*.sdf
+**/*.suo
+**/*.user
+.vs/*
+**/Debug/*
+CMakeFiles/*
+OCAW_STL.dir/**
+RelWithDebInfo/*
+Release/*
+Win32/*
+x64/*
+MinSizeRel/*
+build*/*
+Testing/*
+%ALLUSERSPROFILE%/*
