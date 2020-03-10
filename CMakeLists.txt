@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 project(OCAW_STL CXX)
 
-message("My Message")
-
 # https://cmake.org/cmake/help/latest/variable/CMAKE_MODULE_PATH.html
 # directories specifying a search path for CMake modules 
 # to be loaded by the include() or find_package() commands 
@@ -13,6 +11,9 @@ include(CommonCppFlags)
 
 file(GLOB OCAW_SOURCES "source/*.cpp")
 add_library(OCAW_STL ${OCAW_SOURCES})
+
+# To copy all of EASTL code, I will add OCAW_STL_BASE project first
+add_subdirectory(OCAWBase)
 
 # TODO : Add Benchmark project
 # if(EASTL_BUILD_BENCHMARK)
