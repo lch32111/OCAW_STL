@@ -277,8 +277,8 @@
 	#define OCAW_PLATFORM_APPLE
 	#define OCAW_PLATFORM_POSIX 1
 
-// iPhone
-// TARGET_OS_IPHONE will be undefined on an unknown compiler, and will be defined on gcc.
+	// iPhone
+	// TARGET_OS_IPHONE will be undefined on an unknown compiler, and will be defined on gcc.
 	#if defined(OCAW_PLATFORM_IPHONE) || defined(__IPHONE__) || (defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) || (defined(TARGET_IPHONE_SIMULATOR) && TARGET_IPHONE_SIMULATOR)
 		#undef OCAW_PLATFORM_IPHONE
 		#define OCAW_PLATFORM_IPHONE 1
@@ -307,8 +307,381 @@
 		#else
 			#error Unknown processor
 		#endif
-		#define OCAW_PLATFORM MOBILE1
-	#elif	
+		#define OCAW_PLATFORM_MOBILE 1
+
+	// Macintosh OSX
+	// TARGET_OS_MAC is defined by Metrowerks and older AppleC compilers
+	// However, TARGET_OS_MAC is defined to be 1 in all cases.
+	// __i386__ and __intel__ are defined by the GCC compiler.
+	// __dest_os is defined by the Metrowerks compiler.
+	// __MACH__ is defined by the Metrowerks and GCC compilers.
+	// powerc and __powerc are defined by the Metrowerks and GCC compilers.
+	#elif defined(OCAW_PLATFORM_OSX) || defined(__MACH__) || (defined(__MSL__) && (__dept_os == __mac_os_x))
+		#undef OCAW_PLATFORM_OSX
+		#define OCAW_PLATFORM_OSX 1
+		#define OCAW_PLATFORM_UNIX 1
+		#define OCAW_PLATFOMR_POSIX 1
+		//#define OCAW_PLATFORM_BSD 1		We don't currently define this. OSX has some BSD history but a lot of the API is different.
+		#define OCAW_PLATFORM_NAME "OSX"
+		#if defined(__i386__) || defined(__intel__)
+			#define OCAW_PROCESSOR_X86 1
+			#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+			#define OCAW_PLATFORM_DESCRIPTION "OSX on x86"
+		#elif defined(__x86_64) || defined(__amd64)
+			#define OCAW_PROCESSOR_X86_64 1
+			#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+			#define OCAW_PLATFORM_DESCRIPTION "OSX on x64"
+		#elif defined(__arm__)
+			#define OCAW_ABI_ARM_APPLE 1
+			#define OCWA_PROCESSOR_ARM32 1
+			#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+			#define OCAW_PLATFORM_DESCRIPTION "OSX on ARM"
+		#elif defined(__aarch64__) || defined(__AARCH64)
+			#define OCAW_ABI_ARM64_APPLE 1
+			#define OCAW_PROCESSOR_ARM64 1
+			#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+			#define OCAW_PLATFORM_DESCRIPTION "OSX on ARM 64"
+		#elif defined(__POWERC64__) || defined(__powerpc64__)
+			#define OCAW_PROCESSOR_POWERC 1
+			#define OCAW_PROCESSOR_PWERPC_64 1
+			#define OCAW_SYSTEM_BIG_ENDIAN 1
+			#define OCAW_PLATFORM_DESCRIPTION "OSX on PowerPC"
+		#else
+			#error Unknown processor
+		#endif
+		#if defined(__GNUC__)
+			#define OCAW_ASM_STYLE_AIT 1
+		#else
+			#define OCAW_ASM_STYLE_MOTOROLA 1
+		#endif
+		#define OCAW_PLATFORM_DESKTOP 1
+	#else
+		#error Unknown Apple Platform
 	#endif
 
+// Linux
+// __linux and __linux__ are defined by GCC and Borland compiler.
+// __i386__ and __intel__ are defined by the GCC compiler
+// __i386__ is defined by the Metrowerks compiler.
+// _M_IX86 is defined by the Borland compiler.
+// __sparc__ is defined by the GCC compiler.
+// __powerpc__ is defined by the GCC compiler.
+// __ARM_EABI__ is defined by GCC on an arm v61 (Raspberry Pi 1)
+// __ARM_ARCH_7A__ is defined by GCC on an ARM v71 (Raspberry Pi 2)
+#elif defined(OCAW_PLATFORM_LINUX) || (defined(__linux) || defined(__linux__))
+	#undef OCAW_PLATFORM_LINUX
+	#define OCAW_PLATFORM_LINUX 1
+	#define OCAW_PLATFORM_UNIX 1
+	#define OCAW_PLATFORM_POSIX 1
+	#define OCAW_PLATFORM_NAME "Linux"
+	#if defined(__i386__) || defined(__intel__) || defined(_M_IX86)
+		#define OCAW_PROCESSOR_X86 1
+		#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "Linux on x86"
+	#elif defined(__ARM_ARCH_7A__) || defined(__ARM_EABI__)
+		#define OCAW_ABI_ARM_LINUX 1
+		#define OCAW_PROCESSOR_ARM32 1
+		#define OCAW_PLATFORM_DESCRIPTION "Linux on ARM 6/7 32-bits"
+	#elif defined(__aarch64__) || defined(__AARCH64)
+		#define OCAW_PROCESSOR_ARM64 1
+		#define OCAW_PLATFORM_DESCRIPTION "Linux on ARM64"
+	#elif defined(__x86_x64__)
+		#define OCAW_PROCESSOR_X86_64 1
+		#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "Linux on x64"
+	#elif defined(__powerpc64__)
+		#define OCAW_PROCESSOR_POWERPC 1
+		#define OCAW_PROCESSOR_PWERPC_64 1
+		#define OCAW_SYSTEM_BIG_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "Linux on PowerPC"
+	#else
+		#error Unknown processor
+		#error Unknown endianness
+	#endif
+	#if defined(__GNUC__)
+		#define OCAW_ASM_STYLE_ATT 1
+	#endif
+	#define OCAW_PLATFORM_DESKTOP 1
+
+#elif defined(OCAW_PLATFORM_BSD) || (defined(__BSD__) || defined(__FreeBSD__))
+	#undef OCAW_PLATFORM_BSD
+	#define OCAW_PLATFORM_BSD 1
+	#define OCAW_PLATFORM_UNIX 1
+	#define OCAW_PLATFORM_POSIX 1		// BSD's posix compliance is not identical to Linux's
+	#define OCAW_PLATFORM_NAME "BSD Unix"
+	#if defined(__i386__) || defined(__intel__)
+		#define OCAW_PROCESSOR_X86 1
+		#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "BSD on x86"
+	#elif defined(__x86_64__)
+		#define OCAW_PROCESSOR_X86_64 1
+		#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "BSD on x64"
+	#elif defined(__powerpc64__)
+		#define OCAW_PROCESSOR_POWERPC 1
+		#define OCAW_PROCESSOR_POWERPC_64 1
+		#define OCAW_SYSTEM_BIG_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "BSD on PowerPC"
+	#else
+		#error Unknonw processor
+		#error Unknown endianness
+	#endif
+	#if !defined(OCAW_PLATFORM_FREEBSD) && defined(__FreeBSD__)
+		#define OCAW_PLATFORM_FREEBSD 1 // This is a variation of BSD
+	#endif
+	#if defined(__GNUC__)
+		#define OCAW_ASM_STYLE_ATT 1
+	#endif
+	#define OCAW_PLATFORM_DESKTOP 1
+
+#elif defined(OCAW_PLATFORM_WINDOWS_PHONE)
+	#undef OCAW_PLATFORM_WINDOWS_PHONE
+	#define OCAW_PLATFORM_WINDOWS_PHONE 1
+	#define OCAW_PLATFORM_NAME "Windows Phone"
+	#if defined(_M_AMD64) || defined(_AMD64_) || defined(__x86_64__)
+		#define OCAW_PROCESSOR_X86_64 1
+		#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "Windows Phone on x64"
+	#elif defined(_M_IX86) || defined(_X86_)
+		#define OCAW_PROCESSOR_X86 1
+		#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "Windows Phone on X86"
+	#elif defined(_M_ARM)
+		#define OCAW_ABI_ARM_WINCE 1
+		#define OCAW_PROCESSOR_ARM32 1
+		#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "Windows Phone on ARM"
+	#else // Possibly other Windows Phone variants
+		#error Unknown processor
+		#error Unknown endianness
+	#endif
+	#define OCAW_PLATFORM_MICROSOFT 1
+
+	// WINAPI_FAMILY defines - mirrored from winapifamily.h
+	#define OCAW_WINAPI_FAMILY_APP         1
+	#define OCAW_WINAPI_FAMILY_DESKTOP_APP 2
+	#define OCAW_WINAPI_FAMILY_PHONE_APP   3
+
+	#if defined(WINAPI_FAMILY)
+		#include <winapifamily.h>
+		#if WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP
+			#define OCAW_WINAPI_FAMILY OCAW_WINAPI_FAMILY_PHONE_APP
+		#else
+			#error Unsupported WINAPI_FAMILY for Windows Phone
+		#endif
+	#else
+		#error WINAPI_FAMILY should always be defined on Windows Phone.
+	#endif
+
+	// Macro to determine if a partition is enabled.
+	#define OCAW_WINAPI_FAMILY_PARTITION(Partition)   (Partition)
+
+	// Enable the appropriate partitions for the current family
+	#if OCAW_WINAPI_FAMILY == OCAW_WINAPI_FAMILY_PHONE_APP
+	#   define OCAW_WINAPI_PARTITION_CORE    1
+	#   define OCAW_WINAPI_PARTITION_PHONE   1
+	#   define OCAW_WINAPI_PARTITION_APP     1
+	#else
+	#   error Unsupported WINAPI_FAMILY for Windows Phone
+	#endif
+
+
+// Windows
+// _WIN32 is defined by the VC++, Intel and GCC compilers.
+// _WIN64 is defined by the VC++, Intel and GCC compilers.
+// __WIN32__ is defined by the Borladn compiler.
+// __INTEL__ is defined by the Metrowerks compiler.
+// _M_IX86, _M_AMD64 and _M_IA64 are defined by the VC++, Intel, and Borland compilers.
+// _X86_, _AMD64_, and _IA64_ are defined by the Metrowerks compiler.
+// _M_ARM is defined by the VC++ compiler
+#elif (defined(OCAW_PLATFORM_WINDOWS) || (defined(_WIN32) || defined(__WIN32__) || defined(_WIN64))) && !defined(CS_UNDEFINED_STRING)
+	#undef OCAW_PLATFORM_WINDOWS
+	#define OCAW_PLATFORM_WINDOWS 1
+	#define OCAW_PLATFORM_NAME "Windows"
+	#ifdef _WIN64	// VC++ defined both _WIN32 and _WIN64 when compiling for Win64
+		#define OCAW_PLATFORM_WIN64 1
+	#else
+		#define OCAW_PLATFORM_WIN32 1
+	#endif
+	#if defined(_M_AMD64) || defined(_AMD64_) || defined(__x86_64__)
+		#define OCAW_PROCESSOR_X86_64 1
+		#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "Windows on x64"
+	#elif defined(_M_IX86) || defined(__X86__)
+		#define OCAW_PROCESSOR_X86 1
+		#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "Windows on x86"
+	#elif defined(_M_IA64) || defined(_IA64_)
+		#define OCAW_PROCESSOR_IA64 1
+		#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "Windows on IA-64"
+	#elif defined(_M_ARM)
+		#define	OCAW_ABI_ARM_WINCE 1
+		#define OCAW_PROCESSOR_ARM32 1
+		#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "Windows on ARM"
+	#elif defined(_M_ARM64)
+		#define OCAW_PROCESSOR_ARM64 1
+		#define OCAW_SYSTEM_LITTLE_ENDIAN 1
+		#define OCAW_PLATFORM_DESCRIPTION "Windows on ARM 64"
+	#else // Possibly other Windows CE variants
+		#error Unknown processor
+		#error Unknown endianness
+	#endif
+	#if defined(__GNUC__)
+		#define OCAW_ASM_STYLE_ATT 1
+	#elif defined(_MSC_VER) || defined(__BORLANDC__) || defined(__ICL)
+		#define OCAW_ASM_STYLE_INTEL 1
+	#endif
+	#define OCAW_PLATFORM_DESKTOP 1
+	#define OCAW_PLATFORM_MICROSOFT 1
+
+	// WINAPI_FAMILY defines to support Windows 8 Metro Apps - mirroring winapifamily.h in the Windows 8 SDK
+	#define OCAW_WINAPI_FAMILY_APP         1000
+	#define OCAW_WINAPI_FAMILY_DESKTOP_APP 1001
+	#define OCAW_WINAPI_FAMILY_GAMES       1006
+
+	#if defined(WINAPI_FAMILY)
+		#if defined(_MSC_VER)
+			#pragma warning(push, 0)
+		#endif
+		#include <winapifamily.h>
+		#if defined(_MSC_VER)
+			#pragma warning(pop)
+		#endif
+		#if defined(WINAPI_FAMILY_DESKTOP_APP) && WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+			#define OCAW_WINAPI_FAMILY OCAW_WINAPI_FAMILY_DESKTOP_APP
+		#elif defined(WINAPI_FAMILY_APP) && WINAPI_FAMILY == WINAPI_FAMILY_APP
+			#define OCAW_WINAPI_FAMILY OCAW_WINAPI_FAMILY_APP
+		#elif defined(WINAPI_FAMILY_GAMES) && WINAPI_FAMILY == WINAPI_FAMILY_GAMES
+			#define OCAW_WINAPI_FAMILY OCAW_WINAPI_FAMILY_GAMES
+		#else
+		#error Unsupported WINAPI_FAMILY
+	#endif
+	#else
+		#define OCAW_WINAPI_FAMILY OCAW_WINAPI_FAMILY_DESKTOP_APP
+	#endif
+
+	#define OCAW_WINAPI_PARTITION_DESKTOP 1
+	#define OCAW_WINAPI_PARTITION_APP 1
+	#define OCAW_WINAPI_PARTITION_GAMES (OCAW_WINAPI_FAMILY == OCAW_WINAPI_FAMILY_GAMES)
+
+	#define OCAW_WINAPI_FAMILY_PARTITION(Partition) (Partition)
+
+	// OCAW_PLATFORM_WINRT
+	// This is a subset of Windows which is used for tablets and the "Metro" (restricted) Windows user interface.
+	// WinRT doesn't have access to the Windows "desktop" API, but WinRT can nevertheless run on
+	// desktop computers in addition to tablets. The Windows Phone API is a subset of WinRT and is not included
+	// in it due to it being only a part of the API
+	#if defined(__cplusplus_winrt)
+		#define OCAW_PLATFORM_WINRT 1
+	#endif
+
+// Sun (Solaris)
+// __SUNPRO_CC is defined by the Sun compiler.
+// __sun is defined by the GCC compiler.
+// __i386 is defined by the Sun and GCC compilers.
+// __sparc is defined by the Sun and GCC compilers.
+#else
+	#error Unknown platform
+	#error Unknown processor
+	#error Unknown endianness
 #endif
+
+#ifndef OCAW_PROCESSOR_ARM
+	#if defined(OCAW_PROCESSOR_ARM32) || defined(OCAW_PROCESSOR_ARM64) || defined(OCAW_PROCESSOR_ARM7)
+		#define OCAW_PROCESSOR_ARM
+	#endif
+#endif
+
+// OCAW_PLATFORM_PTR_SIZE
+// Platform pointer size; same as sizeof(void*).
+// This is not the same as sizeof(int), as int is usually 32 bits on
+// even 64 bit platforms.
+//
+// _WIN64 is defined by Win64 compilers, such as VC++.
+// _M_IA64 is defined by VC++ and Intel compilers for IA64 processors.
+// __LP64__ is defined by HP compilers for the LP64 standard.
+// _LP64 is defined by the GCC and Sun compilers for the LP64 standard.
+// __ia64__ is defined by the GCC compiler for IA64 processors.
+// __arch64__ is defined by the Sparc compiler for 64 bit processors.
+// __mips64__ is defined by the GCC compiler for MIPS processors.
+// __powerpc64__ is defined by the GCC compiler for PowerPC processors.
+// __64BIT__ is defined by the AIX compiler for 64 bit processors.
+// __sizeof_ptr is defined by the ARM compiler (armcc, armcpp).
+#ifndef OCAW_PLATFORM_PTR_SIZE
+	#if defined(__WORDSIZE) // Defined by some variations of GCC
+		#define OCAW_PLATFORM_PTR_SIZE ((__WORDSIZE) / 8)
+	#elif defined(_WIN64) || defined(__LP64__) || defined(_LP64) || defined(_M_IA64) || defined(__ia64__) || defined(__arch64__) || defined(__aarch64__) || defined(__mips64__) || defined(__64BIT__) || defined(__Ptr_Is_64)
+		#define OCAW_PLATFORM_PTR_SIZE 8
+	#elif defined(__CC_ARM) && (__sizeof_ptr == 8)
+		#define OCAW_PLATFORM_PTR_SIZE 8
+	#else
+		#define OCAW_PLATFORM_PTR_SIZE 4
+	#endif
+#endif
+
+// OCAW_PLATFORM_WORD_SIZE
+// This defines the size of a machine word. This will be the same as
+// the size of registers on the machine but not necessarily the same
+// as the size of pointers on the machine. A number of 64 bit platforms
+// have 64 bit registers but 32 bit pointers
+#ifndef OCAW_PLATFORM_WORD_SIZE
+	#define OCAW_PLATFORM_WORD_SIZE OCAW_PLATFORM_PTR_SIZE
+#endif
+
+// OCAW_PLATFORM_MIN_MALLOC_ALIGNMENT
+// This defines the minimal alignment that the platform's malloc
+// implementation will return. This should be used when writing custom
+// allocators to ensure that the alignment matches that of malloc
+#ifndef OCAW_PLATFORM_MIN_MALLOC_ALIGNMENT
+	#if defined(OCAW_PLATFORM_APPLE)
+		#define OCAW_PLATFORM_MIN_MALLOC_ALIGNMENT 16
+	#elif defined(OCAW_PLATFORM_ANDROID) && defined(OCAW_PROCESSOR_ARM)
+		#define OCAW_PLATFORM_MIN_MALLOC_ALIGNMENT 8
+	#elif defined(OCAW_PLATFORM_ANDROID) && defined(OCAW_PROCESSOR_X86_64)
+		#define OCAW_PLATFORM_MIN_MALLOC_ALIGNMENT 8
+	#else
+		#define OCAW_PLATFORM_MIN_MALLOC_ALIGNMENT (EA_PLATFORM_PTR_SIZE * 2)
+	#endif
+#endif
+
+// OCAW_MISALIGNED_SUPPORT_LEVEL
+// Specifies if the processor can read and write built-in types that aren't
+// naturally aligned
+//	0 - not supported. Likely causes an exception.
+//	1 - supported but slow.
+//	2 - supported and fast.
+#ifndef OCAW_MISALIGNED_SUPPORT_LEVEL
+	#if defined(OCAW_PROCESSOR_X86_64)
+		#define OCAW_MISALIGNED_SUPPORT_LEVEL 2
+	#else
+		#define OCAW_MISALIGNED_SUPPORT_LEVEL 0
+	#endif
+#endif
+
+// Macro to determine if a Windows API partition is enabled. Always false on non Microsoft platforms.
+#if !defined(OCAW_WINAPI_FAMILY_PARTITION)
+	#define OCAW_WINAPI_FAMILY_PARTITION(Partition) (0)
+#endif
+
+// OCAW_CACHE_LINE_SIZE
+// Specifies the cache line size broken down by compile target.
+// This is the expected best guess values for the targets that we can make at compilation time.
+#ifndef OCAW_CACHE_LINE_SIZE
+	#if defined(OCAW_PROCESSOR_X86)
+		#define OCAW_CACHE_LINE_SIZE 32		// This is the minimum possible value.
+	#elif defined(OCAW_PROCESSOR_X86_64)
+		#define OCAW_CACHE_LINE_SIZE 64		// This is the minimum possible value.
+	#elif defined(OCAW_PROCESSOR_ARM32)
+		#define OCAW_CACHE_LINE_SIZE 32		// This varies between implementations and is usually 32 or 64
+	#elif defined(OCAW_PROCESSOR_ARM64)
+		#define OCAW_CACHE_LINE_SIZE 64		// Cache line Cortex-A8 (64 bytes) http://shervinemami.info/armAssembly.html however this remains to be mostly an assumption at this stage
+	#elif (OCAW_PLATFORM_WORD_SIZE == 4)
+		#define OCAW_CACHE_LINE_SIZE 32		// This is the minimum possible value.
+	#else
+		#define OCAW_CACHE_LINE_SIZE 64		// This is the minimum possible value.
+	#endif
+#endif
+
+#endif // INCLUDED_ocawplatform_H
